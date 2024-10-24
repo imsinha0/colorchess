@@ -1,7 +1,9 @@
-import { Chessboard } from "../components/chessboard";
+
+
+import GameController from "@/components/gamecontroller"
 
 export default function Home(){
     return (
-        <Chessboard />
+        <GameController />
     )
 }
