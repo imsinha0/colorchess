@@ -6,6 +6,42 @@ import Image from 'next/image';
 
 export default function GameController(){
     const [board, setBoard] = useState(new Board());
+    const [selectedSquare, setSelectedSquare] = useState<{ row: number; col: number } | null>(null);
+    const [turn, setTurn] = useState<'white' | 'black'>('white');
+
+
+    const handleSquareClick = (row: number, col: number) => {
+        const piece = board.boardconfig[row][col];
+
+        if(selectedSquare){
+            // move piece
+            const selectedChessPiece = board.boardconfig[selectedSquare.row][selectedSquare.col];
+
+            if(selectedChessPiece && board.isMoveValid(selectedChessPiece, selectedSquare.row, selectedSquare.col, row, col)){
+                board.movePiece(selectedSquare.row, selectedSquare.col, row, col);
+
+                setTurn(turn === 'white' ? 'black' : 'white');
+
+                //const oppositeColor = turn === 'white' ? 'black' : 'white';
+
+                
+            }
+            if(piece && piece.color === turn){
+                setSelectedSquare({ row, col });
+            }
+            else{
+                setSelectedSquare(null);
+            }
+
+        } else if (piece && piece.color === turn){
+            setSelectedSquare({ row, col });
+        }
+        else{
+            setSelectedSquare(null);
+        }
+
+    };
+
 
 
     const renderBoard = () => {
@@ -13,11 +49,13 @@ export default function GameController(){
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
                 const color = board.boardcolors[row][col];
-                const piece = board.boardconfig[row][col]
+                const piece = board.boardconfig[row][col];
+                const selected = selectedSquare?.row === row && selectedSquare?.col === col;
 
                 squares.push(
                     <div key={`${row}-${col}`} 
-                    className={`w-[75px] h-[75px] border-2 border-gray-700`} style={{ backgroundColor: color }}>
+                    className={`w-[75px] h-[75px]  ${selected ? 'border-2 border-yellow-500':'border-2 border-gray-700'}`} style={{ backgroundColor: color }}
+                    onClick={() => handleSquareClick(row, col)}>
 
                         {piece && (
                             <Image src={`/pieces/${piece.color}_${piece.kind}.png`} width={75} height={75} alt="chess piece" />)}

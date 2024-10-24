@@ -24,6 +24,18 @@ function getRandomColor() {
     return colors[Math.floor(Math.random() * colors.length)];
 }
 
+function createColorBoard() {
+    const board = [];
+    for (let row = 0; row < 4; row++) {
+        const rowColors = [];
+        for (let col = 0; col < 8; col++) {
+            rowColors.push(getRandomColor());
+        }
+        board.push(rowColors);
+    }
+    return board.concat(board.slice().reverse());
+}
+
 export class Board{
     boardconfig: Array<Array<ChessPiece|null>> = [
         [dp('rook'), dp('knight'), dp('bishop'), dp('queen'), dp('king'), dp('bishop'), dp('knight'), dp('rook')],
@@ -36,16 +48,7 @@ export class Board{
         [lp('rook'), lp('knight'), lp('bishop'), lp('queen'), lp('king'), lp('bishop'), lp('knight'), lp('rook')]
     ];
 
-    boardcolors: Array<Array<string>> = [
-        [getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor()],
-        [getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor()],
-        [getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor()],
-        [getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor()],
-        [getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor()],
-        [getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor()],
-        [getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor()],
-        [getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor(), getRandomColor()]
-    ];
+    boardcolors: Array<Array<string>> = createColorBoard();
 
     whiteKingPosition = {row: 4, col: 7};
     blackKingPosition = {row: 4, col: 0};
@@ -86,6 +89,21 @@ export class Board{
             col += colDirection;
         }
         return true;
+    }
+
+    isKingInCheck(color: ChessPieceColor): boolean {
+        const kingPosition = color === 'white' ? this.whiteKingPosition : this.blackKingPosition;
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                const piece = this.boardconfig[row][col];
+                if (piece instanceof ChessPiece && piece.color !== color) {
+                    if (this.isMoveValid(piece, row, col, kingPosition.row, kingPosition.col)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     movesPutKingInCheck = (piece: ChessPiece, startRow: number, startCol: number, endRow: number, endCol: number) => {
@@ -207,12 +225,12 @@ export class Board{
                 }
                 if(piece.color === 'black'){
 
-                    if(startRow === 0 && endRow === 0 && startCol === 4 && endCol === 6 && this.fields[0][7] !==0 && this.fields[0][7].kind === 'rook' && this.fields[0][7].color === 'black' && this.fields[0][5] === 0 && this.fields[0][6] === 0){
+                    if(startRow === 0 && endRow === 0 && startCol === 4 && endCol === 6 && this.boardconfig[0][7] && this.boardconfig[0][7].kind === 'rook' && this.boardconfig[0][7].color === 'black' && !this.boardconfig[0][5] && !this.boardconfig[0][6]){
                         this.boardconfig[0][7] = null;
                         this.boardconfig[0][5] = new ChessPiece('rook', 'black');
                         return true;
                     }
-                    if(startRow === 0 && endRow === 0 && startCol === 4 && endCol === 2 && this.fields[0][0] !==0 && this.fields[0][0].kind === 'rook' && this.fields[0][0].color === 'black' && this.fields[0][1] === 0 && this.fields[0][2] === 0 && this.fields[0][3] === 0){
+                    if(startRow === 0 && endRow === 0 && startCol === 4 && endCol === 2 && this.boardconfig[0][0] && this.boardconfig[0][0].kind === 'rook' && this.boardconfig[0][0].color === 'black' && !this.boardconfig[0][1] && !this.boardconfig[0][2] && !this.boardconfig[0][3]){
                         this.boardconfig[0][0] = null;
                         this.boardconfig[0][3] = new ChessPiece('rook', 'black');
                         return true;
