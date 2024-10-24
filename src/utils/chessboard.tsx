@@ -64,6 +64,13 @@ export class Board{
                 this.blackKingPosition = {row: toRow, col: toCol};
             }
         }
+        if(piece && piece.kind == 'pawn' && (toRow === 0 || toRow === 7)){
+
+        }
+    }
+
+    promotePawn(row: number, col: number, piece: 'queen' | 'rook' | 'bishop' | 'knight') {
+        this.boardconfig[row][col] = new ChessPiece(piece, this.boardconfig[row][col]!.color);
     }
 
     isPathClear = (startRow: number, startCol: number, endRow: number, endCol: number) => {
@@ -173,7 +180,7 @@ export class Board{
                     if(rowDiff === 1 && startRow > endRow && startCol === endCol && !this.boardconfig[endRow][endCol]){
                         return this.isPathClear(startRow, startCol, endRow, endCol);
                     }
-                    if(endRow === startRow - 1 && colDiff === 1 && this.boardconfig){
+                    if(endRow === startRow - 1 && colDiff === 1 && this.boardconfig[endRow][endCol]){
                         return true;
                     }
                 }
@@ -184,7 +191,7 @@ export class Board{
                     if(rowDiff === 1 && startRow < endRow && startCol === endCol && !this.boardconfig[endRow][endCol]){
                         return this.isPathClear(startRow, startCol, endRow, endCol);
                     }
-                    if(endRow === startRow + 1 && colDiff === 1 && this.boardconfig){
+                    if(endRow === startRow + 1 && colDiff === 1 && this.boardconfig[endRow][endCol]){
                         return true;
                     }
                 }
