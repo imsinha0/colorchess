@@ -4,6 +4,8 @@ import { useState } from 'react';
 import {Board} from '../utils/chessboard';
 import Image from 'next/image';
 import PromotionModal from './PromotionModal';
+import { ScrollArea } from "@/components/ui/scroll-area"
+
 
 export default function GameController(){
     const [board, setBoard] = useState(new Board());
@@ -11,6 +13,7 @@ export default function GameController(){
     const [turn, setTurn] = useState<'white' | 'black'>('white');
     const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
     const [promotionModalPiece, setPromotionModalPiece] = useState<{ row: number; col: number } | null>(null);
+    const [gameLog, setGameLog] = useState<string[]>([]);
 
 
     const handleSquareClick = (row: number, col: number) => {
@@ -22,6 +25,10 @@ export default function GameController(){
 
             if(selectedChessPiece && board.isMoveValid(selectedChessPiece, selectedSquare.row, selectedSquare.col, row, col)){
                 board.movePiece(selectedSquare.row, selectedSquare.col, row, col);
+
+                // add move to game log
+                const log = `${selectedChessPiece.color} ${selectedChessPiece.kind} moved from ${selectedSquare.row},${selectedSquare.col} to ${row},${col}`;
+                setGameLog([...gameLog, log]);
 
                 setTurn(turn === 'white' ? 'black' : 'white');
 
@@ -35,7 +42,10 @@ export default function GameController(){
 
                 
             }
-            if(piece && piece.color === turn){
+            if(selectedSquare.row === row && selectedSquare.col === col){
+                setSelectedSquare(null);
+            }
+            else if(piece && piece.color === turn){
                 setSelectedSquare({ row, col });
             }
             else{
@@ -56,6 +66,10 @@ export default function GameController(){
             board.promotePawn(promotionModalPiece.row, promotionModalPiece.col, piece);
             setIsPromotionModalOpen(false);
             setPromotionModalPiece(null);
+
+            const oppositeColor = turn === 'white' ? 'black' : 'white';
+            const log = `${oppositeColor} pawn promoted to ${piece}`;
+            setGameLog([...gameLog, log]);
         }
     }
 
@@ -86,6 +100,7 @@ export default function GameController(){
 
     return (
         <div className="flex justify-center items-center h-screen">
+            
         <div className = "w-[600px] h-[600px] grid grid-rows-8 grid-cols-8 shadow-2xl">
           {renderBoard()}
           <PromotionModal
@@ -94,6 +109,17 @@ export default function GameController(){
             promotePawn={promotePawn}
           />
         </div>
+        
+        <ScrollArea className="h-[600px] w-[250px] rounded-md border p-4 shadow-md bg-card text-card-foreground text-white">
+          <h2 className="text-2xl font-bold mb-4">Game Log</h2>
+          <p className="text-sm">
+            {gameLog.map((log, index) => (
+              <div key={index}>{log}</div>
+            ))}
+          </p>
+        </ScrollArea>
+
         </div>
+
       )
 }

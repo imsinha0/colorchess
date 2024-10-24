@@ -6,6 +6,7 @@ import {
   DialogTitle
 } from "@/components/ui/dialog"
 
+
 interface PromotionModalProps {
 isOpen: boolean;
 onClose: () => void;
