@@ -25,6 +25,7 @@ export default function GameController(){
             const selectedChessPiece = board.boardconfig[selectedSquare.row][selectedSquare.col];
 
             if(selectedChessPiece && board.isMoveValid(selectedChessPiece, selectedSquare.row, selectedSquare.col, row, col) ){
+                console.log(enforceColor, board.currentColor, board.boardcolors[row][col]);
                 if(!enforceColor){
                     board.movePiece(selectedSquare.row, selectedSquare.col, row, col);
 
@@ -46,7 +47,6 @@ export default function GameController(){
 
                 if(enforceColor){
                     if(board.currentColor === board.boardcolors[row][col]){
-                        console.log(board.currentColor + " " + board.boardcolors[row][col]);
                         board.movePiece(selectedSquare.row, selectedSquare.col, row, col);
 
                         // add move to game log
@@ -64,6 +64,17 @@ export default function GameController(){
 
                 }
 
+                const oppositeColor = turn === 'white' ? 'black' : 'white';
+
+                if(!board.doesKingExist(oppositeColor)){
+                    setGameLog([...gameLog, `${turn} wins`]);
+                    alert(`${turn} wins`);
+
+                    setBoard(new Board());
+                    setTurn('white');
+                    setGameLog([]);
+                    setEnforceColor(false);
+                }
 
 
                 
@@ -126,7 +137,6 @@ export default function GameController(){
 
     return (
         <div className="flex justify-center items-center h-screen">
-        
         
 
         <div className = "w-[600px] h-[600px] grid grid-rows-8 grid-cols-8 shadow-2xl">

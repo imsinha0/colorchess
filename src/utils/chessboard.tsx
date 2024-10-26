@@ -124,6 +124,18 @@ export class Board{
         return false;
     }
 
+    doesKingExist = (color: ChessPieceColor) => {
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                const piece = this.boardconfig[row][col];
+                if (piece instanceof ChessPiece && piece.kind === 'king' && piece.color === color) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     isCheckmate = (color: ChessPieceColor) => {
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
