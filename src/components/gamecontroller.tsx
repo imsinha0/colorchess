@@ -14,6 +14,7 @@ export default function GameController(){
     const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
     const [promotionModalPiece, setPromotionModalPiece] = useState<{ row: number; col: number } | null>(null);
     const [gameLog, setGameLog] = useState<string[]>([]);
+    const [enforceColor, setEnforceColor] = useState(false);
 
 
     const handleSquareClick = (row: number, col: number) => {
@@ -23,22 +24,47 @@ export default function GameController(){
             // move piece
             const selectedChessPiece = board.boardconfig[selectedSquare.row][selectedSquare.col];
 
-            if(selectedChessPiece && board.isMoveValid(selectedChessPiece, selectedSquare.row, selectedSquare.col, row, col)){
-                board.movePiece(selectedSquare.row, selectedSquare.col, row, col);
+            if(selectedChessPiece && board.isMoveValid(selectedChessPiece, selectedSquare.row, selectedSquare.col, row, col) ){
+                if(!enforceColor){
+                    board.movePiece(selectedSquare.row, selectedSquare.col, row, col);
 
-                // add move to game log
-                const log = `${selectedChessPiece.color} ${selectedChessPiece.kind} moved from ${selectedSquare.row},${selectedSquare.col} to ${row},${col}`;
-                setGameLog([...gameLog, log]);
-
-                setTurn(turn === 'white' ? 'black' : 'white');
-
-                if(selectedChessPiece.kind === 'pawn' && (row === 0 || row === 7)){
-                    // open promotion modal
-                    setIsPromotionModalOpen(true);
-                    setPromotionModalPiece({ row, col });
+                    // add move to game log
+                    const log = `${selectedChessPiece.color} ${selectedChessPiece.kind} moved from ${selectedSquare.row},${selectedSquare.col} to ${row},${col}`;
+                    setGameLog([...gameLog, log]);
+    
+                    setTurn(turn === 'white' ? 'black' : 'white');
+    
+                    if(selectedChessPiece.kind === 'pawn' && (row === 0 || row === 7)){
+                        // open promotion modal
+                        setIsPromotionModalOpen(true);
+                        setPromotionModalPiece({ row, col });
+                    }
+                    board.currentColor = board.boardcolors[row][col];
+                    
+                    setEnforceColor(true);
                 }
 
-                //const oppositeColor = turn === 'white' ? 'black' : 'white';
+                if(enforceColor){
+                    if(board.currentColor === board.boardcolors[row][col]){
+                        console.log(board.currentColor + " " + board.boardcolors[row][col]);
+                        board.movePiece(selectedSquare.row, selectedSquare.col, row, col);
+
+                        // add move to game log
+                        const log = `${selectedChessPiece.color} ${selectedChessPiece.kind} moved from ${selectedSquare.row},${selectedSquare.col} to ${row},${col}`;
+                        setGameLog([...gameLog, log]);
+                
+                        if(selectedChessPiece.kind === 'pawn' && (row === 0 || row === 7)){
+                            // open promotion modal
+                            setIsPromotionModalOpen(true);
+                            setPromotionModalPiece({ row, col });
+                        }
+                        
+                        setEnforceColor(false);
+                    }
+
+                }
+
+
 
                 
             }
@@ -100,7 +126,9 @@ export default function GameController(){
 
     return (
         <div className="flex justify-center items-center h-screen">
-            
+        
+        
+
         <div className = "w-[600px] h-[600px] grid grid-rows-8 grid-cols-8 shadow-2xl">
           {renderBoard()}
           <PromotionModal

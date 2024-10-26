@@ -12,7 +12,6 @@ class ChessPiece {
 
 const colors = ['red', 'green', 'blue'] as const;
 
-
 function dp(kind: ChessPieceKind) {
     return new ChessPiece(kind, 'black');
     }
@@ -52,6 +51,8 @@ export class Board{
 
     whiteKingPosition = {row: 4, col: 7};
     blackKingPosition = {row: 4, col: 0};
+
+    currentColor: string = "";
 
     movePiece(fromRow: number, fromCol: number, toRow: number, toCol: number) {
         const piece  = this.boardconfig[fromRow][fromCol];
