@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import {Board} from '../utils/chessboard';
 import Image from 'next/image';
 import PromotionModal from './PromotionModal';
 import { ScrollArea } from "@/components/ui/scroll-area"
+
 
 
 export default function GameController(){
@@ -15,9 +16,15 @@ export default function GameController(){
     const [promotionModalPiece, setPromotionModalPiece] = useState<{ row: number; col: number } | null>(null);
     const [gameLog, setGameLog] = useState<string[]>([]);
     const [enforceColor, setEnforceColor] = useState(false);
+    const [hydrated, setHydrated] = useState(false); // Added hydration state
 
+    useEffect(() => {
+        setHydrated(true);
+    }, []);
 
     const handleSquareClick = (row: number, col: number) => {
+        console.log(board.boardcolors[row][col]);
+
         const piece = board.boardconfig[row][col];
 
         if(selectedSquare){
@@ -25,7 +32,7 @@ export default function GameController(){
             const selectedChessPiece = board.boardconfig[selectedSquare.row][selectedSquare.col];
 
             if(selectedChessPiece && board.isMoveValid(selectedChessPiece, selectedSquare.row, selectedSquare.col, row, col) ){
-                console.log(enforceColor, board.currentColor, board.boardcolors[row][col]);
+
                 if(!enforceColor){
                     board.movePiece(selectedSquare.row, selectedSquare.col, row, col);
 
@@ -40,12 +47,11 @@ export default function GameController(){
                         setIsPromotionModalOpen(true);
                         setPromotionModalPiece({ row, col });
                     }
-                    board.currentColor = board.boardcolors[row][col];
-                    
+                    board.currentColor = `${board.boardcolors[row][col]}`;
+                    console.log(board.boardcolors[row][col]);
                     setEnforceColor(true);
                 }
-
-                if(enforceColor){
+                else if(enforceColor){
                     if(board.currentColor === board.boardcolors[row][col]){
                         board.movePiece(selectedSquare.row, selectedSquare.col, row, col);
 
@@ -75,7 +81,6 @@ export default function GameController(){
                     setGameLog([]);
                     setEnforceColor(false);
                 }
-
 
                 
             }
@@ -116,13 +121,17 @@ export default function GameController(){
         const squares = [];
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
-                const color = board.boardcolors[row][col];
+
+                const color = hydrated ? board.boardcolors[row][col] : 'gray'; // Fallback color during SSR
                 const piece = board.boardconfig[row][col];
                 const selected = selectedSquare?.row === row && selectedSquare?.col === col;
 
                 squares.push(
                     <div key={`${row}-${col}`} 
-                    className={`w-[75px] h-[75px]  ${selected ? 'border-2 border-yellow-500':'border-2 border-gray-700'}`} style={{ backgroundColor: color }}
+                    className={`w-[75px] h-[75px]  
+                        ${selected ? 'border-2 border-yellow-500':'border-2 border-gray-700'}` 
+                    }
+                    style={{backgroundColor: color}}
                     onClick={() => handleSquareClick(row, col)}>
 
                         {piece && (
@@ -150,11 +159,11 @@ export default function GameController(){
         
         <ScrollArea className="h-[600px] w-[250px] rounded-md border p-4 shadow-md bg-card text-card-foreground text-white">
           <h2 className="text-2xl font-bold mb-4">Game Log</h2>
-          <p className="text-sm">
+          <div className="text-sm">
             {gameLog.map((log, index) => (
               <div key={index}>{log}</div>
             ))}
-          </p>
+          </div>
         </ScrollArea>
 
         </div>

@@ -1,5 +1,4 @@
 
-
 type ChessPieceKind = 'king' | 'queen' | 'rook' | 'bishop' | 'knight' | 'pawn';
 type ChessPieceColor = 'white' | 'black';
 
