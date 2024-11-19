@@ -135,7 +135,7 @@ export default function GameController(){
                     onClick={() => handleSquareClick(row, col)}>
 
                         {piece && (
-                            <Image src={`/pieces/${piece.color}_${piece.kind}.png`} width={75} height={75} alt="chess piece" />)}
+                            <Image src={`pieces/${piece.color}_${piece.kind}.png`} width={75} height={75} alt="chess piece" />)}
                     </div>
                 );
             }
